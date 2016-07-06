@@ -59,7 +59,7 @@ done
 
 if [ $SLEEP != 0 ]
 then
-    [ $VERBOSE ] && echo "Sleep: $SLEEP seconds"
+    [ $VERBOSE ] && echo "Sleep:        $SLEEP seconds"
     sleep $SLEEP
 fi
 
@@ -69,12 +69,12 @@ fi
 
 # Get user and X display
 XDISP=":0.0"
-[ $VERBOSE ] && echo "Display: $XDISP"
+[ $VERBOSE ] && echo "Display:      $XDISP"
 XWHO=$(who | grep "(${XDISP})" | head -n 1)
 XUSER=$(echo "$XWHO" | cut -d' ' -f 1)
-[ $VERBOSE ] && echo "User: $XUSER"
+[ $VERBOSE ] && echo "User:         $XUSER"
 CURUSER=$(whoami)
-[ $VERBOSE ] && echo "Owner: $CURUSER"
+[ $VERBOSE ] && echo "Owner:        $CURUSER"
 
 # Set X enviroment
 export XAUTHORITY=/home/${XUSER}/.Xauthority
@@ -85,30 +85,30 @@ export WALLPAPER=/home/${XUSER}/.wallpaper.jpeg
 XRANDR=$(which xrandr)
 [ "$CURUSER" != "$XUSER" ] && XRANDR="sudo -u ${XUSER} ${XRANDR}"
 XDATA=$(DISPLAY=${XDISP} ${XRANDR} | grep -v "^ " | grep -iv "^screen")
-[ $DEBUG ] && echo "XRandr:    $XDATA"
+[ $DEBUG ] && echo "XRandr:       $XDATA"
 
 # All connectors
 ALL=$(echo "$XDATA" | cut -f 1 -d ' ')
-[ $VERBOSE ] && echo "$ALL" | paste -s -d"," | echo "Output:    $(cat -)"
+[ $VERBOSE ] && echo "$ALL" | paste -s -d"," | echo "Output:       $(cat -)"
 
 # Primary monitor name: by special connector or first from list
 PRIMARY=$(echo "$ALL" | grep eDP) || $(echo "$ALL" | head -n 1)
-[ $VERBOSE ] && echo "Primary:   $PRIMARY"
+[ $VERBOSE ] && echo "Primary:      $PRIMARY"
 
 SECONDARY=$(echo "$ALL" | grep -v "$PRIMARY")
-[ $VERBOSE ] && echo "$SECONDARY" | paste -s -d"," | echo "Secondary: $(cat -)"
+[ $VERBOSE ] && echo "$SECONDARY" | paste -s -d"," | echo "Secondary:    $(cat -)"
 
 # List of connected monitors
 CONNECTED=$(echo "$XDATA" | grep " connected " | cut -f 1 -d ' ')
-[ $VERBOSE ] && echo "$CONNECTED" | paste -s -d"," | echo "Connected: $(cat -)"
+[ $VERBOSE ] && echo "$CONNECTED" | paste -s -d"," | echo "Connected:    $(cat -)"
 
 # List of disconnected monitors
 DISCONNECTED=$(echo "$XDATA" | grep " disconnected " | cut -f 1 -d ' ')
-[ $VERBOSE ] && echo "$DISCONNECTED" | paste -s -d"," | echo "Disconnected:  $(cat -)"
+[ $VERBOSE ] && echo "$DISCONNECTED" | paste -s -d"," | echo "Disconnected: $(cat -)"
 
 # List of configured monitors
 ENABLED=$(echo "$XDATA" | grep "onnected [0-9]" | cut -f 1 -d ' ')
-[ $VERBOSE ] && echo "$ENABLED" | paste -s -d"," | echo "Configured: $(cat -)"
+[ $VERBOSE ] && echo "$ENABLED" | paste -s -d"," | echo "Configured:   $(cat -)"
 
 # List of unconfigured monitors
 DISABLED=$(echo "$XDATA" | grep -v "onnected [0-9]" | cut -f 1 -d ' ')
@@ -116,11 +116,11 @@ DISABLED=$(echo "$XDATA" | grep -v "onnected [0-9]" | cut -f 1 -d ' ')
 
 # Need tune-up
 UP=$(cat <(echo "$CONNECTED") <(echo "$DISABLED") | sort | uniq -d)
-[ $VERBOSE ] && echo "$UP" | paste -s -d"," | echo "Tune-up: $(cat -)"
+[ $VERBOSE ] && echo "$UP" | paste -s -d"," | echo "Tune-up:      $(cat -)"
 
 # Need off
 DOWN=$(cat <(echo "$DISCONNECTED") <(echo "$ENABLED") | sort | uniq -d)
-[ $VERBOSE ] && echo "$DOWN" | paste -s -d"," | echo "Off: $(cat -)"
+[ $VERBOSE ] && echo "$DOWN" | paste -s -d"," | echo "Off:          $(cat -)"
 
 
 ### ASSEMBLY
@@ -131,7 +131,7 @@ EXEC="$XRANDR"
 
 case $MODE in
     0)
-        [ $VERBOSE ] && echo "Mode: primary monitor only ($MODE)"
+        [ $VERBOSE ] && echo "Mode:         primary monitor only ($MODE)"
 
         # Primary monitor
         EXEC="$EXEC --output $PRIMARY --auto"
@@ -143,7 +143,7 @@ case $MODE in
         done
     ;;
     1)
-        [ $VERBOSE ] && echo "Mode: auto configure all monitors ($MODE)"
+        [ $VERBOSE ] && echo "Mode:         auto configure all monitors ($MODE)"
 
         # Tune-up
         for OUTPUT in $UP
@@ -170,13 +170,13 @@ esac
 # Apply configuration
 if [ "$EXEC" == "$XRANDR" ]
 then
-    [ $VERBOSE ] && echo "Update is not need"
+    [ $VERBOSE ] && echo "Execute:      is not need"
 else
     if [ $EMULATE ]
     then
         echo "$EXEC"
     else
-        [ $VERBOSE ] && echo "Execute: $EXEC"
+        [ $VERBOSE ] && echo "Execute:      $EXEC"
         $($EXEC) || exit $?
     fi
 fi
@@ -185,11 +185,14 @@ fi
 if [ -x /usr/bin/feh ] && [ -f "$WALLPAPER" ]
 then
     feh --no-fehbg --bg-fill "$WALLPAPER"
-    [ $VERBOSE ] && echo "Wallpaper: $WALLPAPER"
+    [ $VERBOSE ] && echo "Wallpaper:    $WALLPAPER"
 else
-    [ $VERBOSE ] && echo "Wallpaper not updated"
+    [ $VERBOSE ] && echo "Wallpaper:    not updated"
 fi
 
-# Complete
+
+# COMPLETE
+
+
 [ $VERBOSE ] && echo "Complete."
 exit 0
