@@ -70,11 +70,12 @@ fi
 # Get user and X display
 XDISP=":0.0"
 [ $VERBOSE ] && echo "Display:      $XDISP"
-XWHO=$(who | grep "(${XDISP})" | head -n 1)
-XUSER=$(echo "$XWHO" | cut -d' ' -f 1)
-[ $VERBOSE ] && echo "User:         $XUSER"
 CURUSER=$(whoami)
 [ $VERBOSE ] && echo "Owner:        $CURUSER"
+XWHO=$(who | grep "(${XDISP})" | head -n 1)
+XUSER=$(echo "$XWHO" | cut -d' ' -f 1) || echo "$CURUSER"
+
+[ $VERBOSE ] && echo "User:         $XUSER"
 
 # Set X enviroment
 export XAUTHORITY=/home/${XUSER}/.Xauthority
