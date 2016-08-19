@@ -73,8 +73,9 @@ XDISP=":0.0"
 CURUSER=$(whoami)
 [ $VERBOSE ] && echo "Owner:        $CURUSER"
 XWHO=$(who | grep "(${XDISP})" | head -n 1)
-XUSER=$(echo "$XWHO" | cut -d' ' -f 1) || echo "$CURUSER"
 
+XUSER=$CURUSER
+if test -z "$XUSER"; then XUSER=$(echo "$XWHO" | cut -d' ' -f 1); fi
 [ $VERBOSE ] && echo "User:         $XUSER"
 
 # Set X enviroment
@@ -116,7 +117,7 @@ DISABLED=$(echo "$XDATA" | grep -v "onnected [0-9]" | cut -f 1 -d ' ')
 [ $VERBOSE ] && echo "$DISABLED" | paste -s -d"," | echo "Unconfigured: $(cat -)"
 
 # Need tune-up
-UP=$(cat <(echo "$CONNECTED") <(echo "$DISABLED") | sort | uniq -d)
+UP=$(cat <(echo "$CONNECTED") <(echo "$DISABLED") | sort | uniq -d | grep -v "$PRIMARY")
 [ $VERBOSE ] && echo "$UP" | paste -s -d"," | echo "Tune-up:      $(cat -)"
 
 # Need off
@@ -135,7 +136,7 @@ case $MODE in
         [ $VERBOSE ] && echo "Mode:         primary monitor only ($MODE)"
 
         # Primary monitor
-        EXEC="$EXEC --output $PRIMARY --auto"
+        EXEC="$EXEC --output $PRIMARY --primary --auto"
 
         # Drop all configured
         for OUTPUT in $(echo "$ENABLED" | grep -v "$PRIMARY")
@@ -145,6 +146,9 @@ case $MODE in
     ;;
     1)
         [ $VERBOSE ] && echo "Mode:         auto configure all monitors ($MODE)"
+
+        # Primary monitor
+        EXEC="$EXEC --output $PRIMARY --primary --auto"
 
         # Tune-up
         for OUTPUT in $UP
